@@ -12,6 +12,8 @@ public record RoomResponse(
         Long houseId,
         String houseName,
         Long landlordId,
+        Double houseLatitude,
+        Double houseLongitude,
         String title,
         BigDecimal price,
         BigDecimal area,

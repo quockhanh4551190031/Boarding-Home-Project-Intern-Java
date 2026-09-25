@@ -154,7 +154,10 @@ public class RoomService {
 
         return new RoomResponse(
                 room.getId(), room.getHouse().getId(), room.getHouse().getName(),
-                room.getHouse().getLandlord().getId(),room.getTitle(), room.getPrice(), room.getArea(), room.getMaxOccupants(),
+                room.getHouse().getLandlord().getId(),
+                room.getHouse().getLatitude().doubleValue(),
+                room.getHouse().getLongitude().doubleValue(),
+                room.getTitle(), room.getPrice(), room.getArea(), room.getMaxOccupants(),
                 room.getDescription(), room.getStatus(), room.getViewCount(),
                 amenityNames, imageResponses, room.getCreatedAt(), distanceKm
         );
