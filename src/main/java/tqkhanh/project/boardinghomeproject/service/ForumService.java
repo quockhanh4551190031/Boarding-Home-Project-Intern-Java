@@ -142,6 +142,7 @@ public class ForumService {
             throw new ForbiddenActionException("Bạn không có quyền xóa bình luận này");
         }
 
+        commentRepository.deleteAll(commentRepository.findByParentCommentId(commentId));
         commentRepository.delete(comment);
     }
 
