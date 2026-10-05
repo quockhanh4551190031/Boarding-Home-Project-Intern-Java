@@ -95,6 +95,7 @@ public class RoomController {
             @RequestParam(required = false) BigDecimal minArea,
             @RequestParam(required = false) BigDecimal maxArea,
             @RequestParam(required = false) String city,
+            @RequestParam(required = false) String ward,
             @RequestParam(required = false) List<Long> amenityIds,
             @RequestParam(required = false) String sortBy,
             @RequestParam(defaultValue = "0") int page,
@@ -102,7 +103,7 @@ public class RoomController {
     ) {
         return ResponseEntity.ok(roomService.search(
                 keyword, minPrice, maxPrice, minArea, maxArea,
-                city, amenityIds, sortBy, page, size
+                city, ward, amenityIds, sortBy, page, size
         ));
     }
 

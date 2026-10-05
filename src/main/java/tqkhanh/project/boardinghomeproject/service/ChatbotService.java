@@ -60,7 +60,7 @@ public class ChatbotService {
 
         RoomSearchResponse result = roomService.search(
                 locationKeyword, null, maxPrice, null, null,
-                null, null,  "PRICE_ASC", 0, 3
+                null, null,null,  "PRICE_ASC", 0, 3
         );
 
         return result.rooms();

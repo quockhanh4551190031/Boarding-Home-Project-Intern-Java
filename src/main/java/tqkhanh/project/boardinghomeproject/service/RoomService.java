@@ -169,12 +169,13 @@ public class RoomService {
             BigDecimal minPrice, BigDecimal maxPrice,
             BigDecimal minArea, BigDecimal maxArea,
             String city,
+            String ward,
             List<Long> amenityIds,
             String sortBy,
             int page, int size
     ) {
         Specification<Room> spec = RoomSpecifications.filter(
-                keyword, minPrice, maxPrice, minArea, maxArea, city, amenityIds
+                keyword, minPrice, maxPrice, minArea, maxArea, city, ward, amenityIds
         );
 
         Sort sort = resolveSort(sortBy);
@@ -215,7 +216,7 @@ public class RoomService {
             int page, int size
     ) {
         Specification<Room> spec = RoomSpecifications.filter(
-                null, minPrice, maxPrice, null, null, null, amenityIds
+                null, minPrice, maxPrice, null, null, null, null, amenityIds
         );
 
         List<Room> matched = roomRepository.findAll(spec);

@@ -21,6 +21,7 @@ public class RoomSpecifications {
             BigDecimal minPrice, BigDecimal maxPrice,
             BigDecimal minArea, BigDecimal maxArea,
             String city,
+            String ward,
             List<Long> amenityIds
     ) {
         return (root, query, cb) -> {
@@ -48,6 +49,10 @@ public class RoomSpecifications {
 
             if (city != null && !city.isBlank()) {
                 predicates.add(cb.equal(cb.lower(house.get("city")), city.toLowerCase()));
+            }
+
+            if (ward != null && !ward.isBlank()) {
+                predicates.add(cb.equal(cb.lower(house.get("ward")), ward.toLowerCase()));
             }
 
             if (amenityIds != null && !amenityIds.isEmpty()) {
