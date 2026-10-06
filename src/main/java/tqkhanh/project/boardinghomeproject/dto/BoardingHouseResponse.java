@@ -4,6 +4,7 @@ import tqkhanh.project.boardinghomeproject.entity.HouseStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record BoardingHouseResponse(
         Long id,
@@ -16,6 +17,6 @@ public record BoardingHouseResponse(
         String description,
         HouseStatus status,
         int roomCount,
+        List<String> images,
         LocalDateTime createdAt
-) {
-}
+) {}

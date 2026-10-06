@@ -2,9 +2,7 @@ package tqkhanh.project.boardinghomeproject.service;
 
 import tqkhanh.project.boardinghomeproject.dto.BoardingHouseRequest;
 import tqkhanh.project.boardinghomeproject.dto.BoardingHouseResponse;
-import tqkhanh.project.boardinghomeproject.entity.BoardingHouse;
-import tqkhanh.project.boardinghomeproject.entity.HouseStatus;
-import tqkhanh.project.boardinghomeproject.entity.User;
+import tqkhanh.project.boardinghomeproject.entity.*;
 import tqkhanh.project.boardinghomeproject.exception.ForbiddenActionException;
 import tqkhanh.project.boardinghomeproject.exception.ResourceNotFoundException;
 import tqkhanh.project.boardinghomeproject.repository.AdministrativeUnitRepository;
@@ -109,12 +107,21 @@ public class BoardingHouseService {
 
     private BoardingHouseResponse toResponse(BoardingHouse house) {
         int roomCount = (int) house.getRooms().stream()
-                .filter(r -> r.getStatus() != tqkhanh.project.boardinghomeproject.entity.RoomStatus.HIDDEN)
+                .filter(r -> r.getStatus() != RoomStatus.HIDDEN)
                 .count();
+
+        List<String> images = house.getRooms().stream()
+                .filter(r -> r.getStatus() != RoomStatus.HIDDEN)
+                .flatMap(r -> r.getImages().stream())
+                .map(RoomImage::getImageUrl)
+                .distinct()
+                .limit(12)
+                .toList();
+
         return new BoardingHouseResponse(
                 house.getId(), house.getName(), house.getAddress(), house.getWard(),
                 house.getCity(), house.getLatitude(), house.getLongitude(),
-                house.getDescription(), house.getStatus(), roomCount, house.getCreatedAt()
+                house.getDescription(), house.getStatus(), roomCount, images, house.getCreatedAt()
         );
     }
 }
