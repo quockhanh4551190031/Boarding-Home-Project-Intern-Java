@@ -124,11 +124,21 @@ public class RoomService {
     @Transactional
     public void deleteImage(User landlord, Long roomId, Long imageId) {
         Room room = getOwnedRoomOrThrow(landlord.getId(), roomId);
+
         RoomImage image = room.getImages().stream()
                 .filter(img -> img.getId().equals(imageId))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy ảnh này trong phòng"));
-        roomImageRepository.delete(image);
+
+        boolean wasThumbnail = image.isThumbnail();
+
+        // Gỡ khỏi collection của Room: orphanRemoval sẽ xóa dòng trong DB khi commit
+        room.getImages().remove(image);
+
+        // Nếu vừa xóa ảnh chính, chuyển vai trò ảnh chính sang ảnh còn lại đầu tiên
+        if (wasThumbnail && !room.getImages().isEmpty()) {
+            room.getImages().get(0).setThumbnail(true);
+        }
     }
 
     private Room getOwnedRoomOrThrow(Long landlordId, Long roomId) {
