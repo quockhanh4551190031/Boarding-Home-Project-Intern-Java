@@ -1,9 +1,6 @@
 package tqkhanh.project.boardinghomeproject.specification;
 
-import tqkhanh.project.boardinghomeproject.entity.Amenity;
-import tqkhanh.project.boardinghomeproject.entity.BoardingHouse;
-import tqkhanh.project.boardinghomeproject.entity.Room;
-import tqkhanh.project.boardinghomeproject.entity.RoomStatus;
+import tqkhanh.project.boardinghomeproject.entity.*;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -30,6 +27,7 @@ public class RoomSpecifications {
             predicates.add(cb.equal(root.get("status"), RoomStatus.AVAILABLE));
 
             Join<Room, BoardingHouse> house = root.join("house", JoinType.LEFT);
+            predicates.add(cb.equal(house.get("status"), HouseStatus.ACTIVE));
 
             if (keyword != null && !keyword.isBlank()) {
                 String pattern = "%" + keyword.toLowerCase() + "%";

@@ -122,4 +122,14 @@ public class RoomController {
                 lat,lng,radiusKm,minPrice,maxPrice,amenityIds,page,size
         ));
     }
+
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('LANDLORD')")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<RoomResponse> updateStatus(
+            @AuthenticationPrincipal User landlord,
+            @PathVariable Long id,
+            @Valid @RequestBody RoomStatusRequest request) {
+        return ResponseEntity.ok(roomService.updateStatus(landlord, id, request.status()));
+    }
 }

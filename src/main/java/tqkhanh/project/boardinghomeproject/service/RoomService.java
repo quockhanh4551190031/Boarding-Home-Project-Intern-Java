@@ -268,4 +268,12 @@ public class RoomService {
 
         return R*c;
     }
+
+    @Transactional
+    public RoomResponse updateStatus(User landlord, Long roomId, RoomStatus status) {
+        Room room = getOwnedRoomOrThrow(landlord.getId(), roomId);
+        room.setStatus(status);
+        roomRepository.save(room);
+        return toResponse(room);
+    }
 }
