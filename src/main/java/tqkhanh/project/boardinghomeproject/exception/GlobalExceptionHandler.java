@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.Map;
 
@@ -52,5 +53,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleAccountBlocked(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(Map.of("message", "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên."));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(fe -> fe.getDefaultMessage())
+                .orElse("Dữ liệu không hợp lệ");
+        return ResponseEntity.badRequest().body(Map.of("message", message));
     }
 }
