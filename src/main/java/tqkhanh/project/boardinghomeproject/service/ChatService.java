@@ -24,6 +24,11 @@ public class ChatService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
 
+    @Transactional(readOnly = true)
+    public long countUnread(User user) {
+        return messageRepository.countUnreadForUser(user.getId());
+    }
+
     @Transactional
     public ChatRoomResponse getOrCreateChatRoom(User currentUser, CreateChatRoomRequest request) {
         if (currentUser.getId().equals(request.targetUserId())) {

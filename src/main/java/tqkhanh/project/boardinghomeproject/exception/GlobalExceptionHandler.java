@@ -63,4 +63,9 @@ public class GlobalExceptionHandler {
                 .orElse("Dữ liệu không hợp lệ");
         return ResponseEntity.badRequest().body(Map.of("message", message));
     }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<Map<String, String>> handleTooManyRequests(TooManyRequestsException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of("message", ex.getMessage()));
+    }
 }

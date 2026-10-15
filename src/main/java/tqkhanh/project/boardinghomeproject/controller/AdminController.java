@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import tqkhanh.project.boardinghomeproject.service.ReviewService;
 
 import java.util.List;
 
@@ -22,6 +23,14 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final ReviewService reviewService;
+
+    @GetMapping("/reviews")
+    public ResponseEntity<List<AdminReviewResponse>> getReviews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(reviewService.adminList(page, size));
+    }
 
     @GetMapping("/users")
     public ResponseEntity<List<AdminUserResponse>> getUsers(

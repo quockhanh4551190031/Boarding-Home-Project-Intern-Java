@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/chat")
@@ -19,6 +20,11 @@ import java.util.List;
 public class ChatController {
 
     private final ChatService chatService;
+
+    @GetMapping("/unread-count")
+    public ResponseEntity<Map<String, Long>> unreadCount(@AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(Map.of("count", chatService.countUnread(currentUser)));
+    }
 
     @GetMapping("/rooms")
     public ResponseEntity<List<ChatRoomResponse>> getMyRooms(@AuthenticationPrincipal User currentUser) {

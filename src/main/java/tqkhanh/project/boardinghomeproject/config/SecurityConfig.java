@@ -63,6 +63,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/houses/all").permitAll()
                         .requestMatchers("/api/v1/amenities/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
