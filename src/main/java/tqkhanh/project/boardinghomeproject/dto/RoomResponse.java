@@ -1,4 +1,3 @@
-// dto/RoomResponse.java
 package tqkhanh.project.boardinghomeproject.dto;
 
 import tqkhanh.project.boardinghomeproject.entity.RoomStatus;
@@ -11,6 +10,7 @@ public record RoomResponse(
         Long id,
         Long houseId,
         String houseName,
+        String houseAddress,
         Long landlordId,
         Double houseLatitude,
         Double houseLongitude,
@@ -25,4 +25,5 @@ public record RoomResponse(
         List<RoomImageResponse> images,
         LocalDateTime createdAt,
         Double distanceKm
-) {}
+) {
+}

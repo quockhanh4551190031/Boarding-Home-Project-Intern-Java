@@ -8,6 +8,7 @@ import java.util.List;
 
 public record BoardingHouseResponse(
         Long id,
+        Long landlordId,
         String name,
         String address,
         String ward,
@@ -19,4 +20,5 @@ public record BoardingHouseResponse(
         int roomCount,
         List<String> images,
         LocalDateTime createdAt
-) {}
+) {
+}

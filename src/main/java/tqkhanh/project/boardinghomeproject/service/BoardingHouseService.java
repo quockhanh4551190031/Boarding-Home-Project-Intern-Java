@@ -119,7 +119,7 @@ public class BoardingHouseService {
                 .toList();
 
         return new BoardingHouseResponse(
-                house.getId(), house.getName(), house.getAddress(), house.getWard(),
+                house.getId(), house.getLandlord().getId(), house.getName(), house.getAddress(), house.getWard(),
                 house.getCity(), house.getLatitude(), house.getLongitude(),
                 house.getDescription(), house.getStatus(), roomCount, images, house.getCreatedAt()
         );

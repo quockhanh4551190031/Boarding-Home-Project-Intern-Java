@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tqkhanh.project.boardinghomeproject.util.DisplayNames;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -241,19 +242,8 @@ public class ReviewService {
         boolean mine = viewer != null && r.getUser().getId().equals(viewer.getId());
         boolean edited = r.getUpdatedAt() != null && r.getCreatedAt() != null
                 && r.getUpdatedAt().isAfter(r.getCreatedAt().plusSeconds(1));
-        return new ReviewResponse(r.getId(), r.getRating(), r.getComment(),
-                displayName(r.getUser()), mine, edited, r.getCreatedAt());
-    }
-
-    private String displayName(User user) {
-        Profile profile = user.getProfile();
-        if (profile != null && profile.getFullName() != null && !profile.getFullName().isBlank()) {
-            return profile.getFullName();
-        }
-        String email = user.getEmail();
-        int at = email.indexOf('@');
-        String local = at > 0 ? email.substring(0, at) : email;
-        return local.substring(0, Math.min(2, local.length())) + "***";
+        return new ReviewResponse(r.getId(), r.getUser().getId(), r.getRating(), r.getComment(),
+                DisplayNames.of(r.getUser()), mine, edited, r.getCreatedAt());
     }
 
     private String normalize(String raw) {

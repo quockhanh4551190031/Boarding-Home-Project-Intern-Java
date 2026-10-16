@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tqkhanh.project.boardinghomeproject.specification.RoomSpecifications;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -85,6 +87,7 @@ public class RoomService {
         roomRepository.save(room);
         return toResponse(room);
     }
+
     @Transactional(readOnly = true)
     public RoomResponse getByIdWithoutIncrementingView(Long roomId) {
         Room room = roomRepository.findById(roomId)
@@ -164,6 +167,7 @@ public class RoomService {
 
         return new RoomResponse(
                 room.getId(), room.getHouse().getId(), room.getHouse().getName(),
+                fullAddress(room.getHouse()),
                 room.getHouse().getLandlord().getId(),
                 room.getHouse().getLatitude().doubleValue(),
                 room.getHouse().getLongitude().doubleValue(),
@@ -206,13 +210,13 @@ public class RoomService {
         );
     }
 
-    private Sort resolveSort(String sortBy){
+    private Sort resolveSort(String sortBy) {
         if (sortBy == null) return Sort.by(Sort.Direction.DESC, "createdAt");
         return switch (sortBy.toUpperCase()) {
             case "PRICE_ASC" -> Sort.by(Sort.Direction.ASC, "price");
-            case "PRICE_DESC" -> Sort.by(Sort.Direction.DESC, "price"   );
-            case "AREA_ASC" -> Sort.by(Sort.Direction.ASC, "area"   );
-            case "AREA_DESC" -> Sort.by(Sort.Direction.DESC, "area" );
+            case "PRICE_DESC" -> Sort.by(Sort.Direction.DESC, "price");
+            case "AREA_ASC" -> Sort.by(Sort.Direction.ASC, "area");
+            case "AREA_DESC" -> Sort.by(Sort.Direction.DESC, "area");
             case "NEWEST" -> Sort.by(Sort.Direction.DESC, "createdAt");
             default -> Sort.by(Sort.Direction.DESC, "createdAt");
         };
@@ -231,7 +235,8 @@ public class RoomService {
 
         List<Room> matched = roomRepository.findAll(spec);
 
-        record RoomWithDistance(Room room, double distanceKm) {}
+        record RoomWithDistance(Room room, double distanceKm) {
+        }
 
         List<RoomWithDistance> ranked = matched.stream()
                 .map(r -> new RoomWithDistance(
@@ -249,7 +254,7 @@ public class RoomService {
         List<RoomResponse> content = ranked.stream()
                 .skip((long) page * size)
                 .limit(size)
-                .map(rd -> toResponse(rd.room(), Math.round(rd.distanceKm()*100) / 100.0))
+                .map(rd -> toResponse(rd.room(), Math.round(rd.distanceKm() * 100) / 100.0))
                 .toList();
 
         return new RoomSearchResponse(content, page, totalPages, totalElements, (page + 1) * size < totalElements);
@@ -261,12 +266,12 @@ public class RoomService {
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
 
-        double a = Math.sin(dLat / 2) * Math.sin(dLat/2)
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(dLon/2)* Math.sin(dLon / 2);
-        double c = 2* Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        return R*c;
+        return R * c;
     }
 
     @Transactional
@@ -275,5 +280,11 @@ public class RoomService {
         room.setStatus(status);
         roomRepository.save(room);
         return toResponse(room);
+    }
+
+    private String fullAddress(BoardingHouse house) {
+        return Stream.of(house.getAddress(), house.getWard(), house.getCity())
+                .filter(s -> s != null && !s.isBlank())
+                .collect(Collectors.joining(", "));
     }
 }

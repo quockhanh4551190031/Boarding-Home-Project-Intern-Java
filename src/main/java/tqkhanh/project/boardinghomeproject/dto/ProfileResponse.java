@@ -5,6 +5,7 @@ import tqkhanh.project.boardinghomeproject.entity.Gender;
 import java.time.LocalDate;
 
 public record ProfileResponse(
+        Long userId,
         String email,
         String role,
         String fullName,

@@ -8,7 +8,11 @@ import tqkhanh.project.boardinghomeproject.entity.PostStatus;
 
 public interface ForumPostRepository extends JpaRepository<ForumPost, Long> {
     Page<ForumPost> findByStatus(PostStatus status, Pageable pageable);
+
     Page<ForumPost> findBySharedRoomIdAndStatus(Long roomId, PostStatus status
-    , Pageable pageable);
+            , Pageable pageable);
+
     Page<ForumPost> findAll(Pageable pageable);
+
+    long countByUserIdAndStatus(Long userId, PostStatus status);
 }
