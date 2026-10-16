@@ -80,8 +80,9 @@ public class ForumController {
     }
 
     @GetMapping("/posts/{id}/comments")
-    public ResponseEntity<List<CommentResponse>> getComments(@PathVariable Long id) {
-        return ResponseEntity.ok(forumService.getComments(id));
+    public ResponseEntity<List<CommentResponse>> getComments(
+            @AuthenticationPrincipal User user, @PathVariable Long id) {
+        return ResponseEntity.ok(forumService.getComments(id, user != null ? user.getId() : null));
     }
 
     @DeleteMapping("/comments/{id}")

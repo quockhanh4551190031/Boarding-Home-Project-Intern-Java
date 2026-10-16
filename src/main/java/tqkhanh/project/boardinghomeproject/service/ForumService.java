@@ -13,6 +13,7 @@ import tqkhanh.project.boardinghomeproject.entity.*;
 import tqkhanh.project.boardinghomeproject.exception.ForbiddenActionException;
 import tqkhanh.project.boardinghomeproject.exception.ResourceNotFoundException;
 import tqkhanh.project.boardinghomeproject.repository.*;
+import tqkhanh.project.boardinghomeproject.util.DisplayNames;
 
 import java.util.List;
 
@@ -121,13 +122,13 @@ public class ForumService {
                 .build();
 
         commentRepository.save(comment);
-        return toCommentResponse(comment);
+        return toCommentResponse(comment, user.getId());
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponse> getComments(Long postId) {
+    public List<CommentResponse> getComments(Long postId, Long currentUserId) {
         return commentRepository.findByPostIdOrderByCreatedAtAsc(postId).stream()
-                .map(this::toCommentResponse)
+                .map(c -> toCommentResponse(c, currentUserId))
                 .toList();
     }
 
@@ -169,22 +170,33 @@ public class ForumService {
     private PostResponse toResponse(ForumPost post, Long currentUserId) {
         boolean likedByMe = currentUserId != null
                 && postLikeRepository.existsByPostIdAndUserId(post.getId(), currentUserId);
+        boolean mine = currentUserId != null && post.getUser().getId().equals(currentUserId);
         int commentCount = commentRepository.findByPostIdOrderByCreatedAtAsc(post.getId()).size();
 
         return new PostResponse(
-                post.getId(), post.getUser().getId(), post.getUser().getEmail(),
-                post.getUser().getProfile() != null ? post.getUser().getProfile().getFullName() : null,
-                post.getTitle(), post.getContent(),
+                post.getId(),
+                post.getUser().getId(),
+                DisplayNames.of(post.getUser()),
+                mine,
+                post.getTitle(),
+                post.getContent(),
                 post.getSharedRoom() != null ? post.getSharedRoom().getId() : null,
                 post.getSharedRoom() != null ? post.getSharedRoom().getTitle() : null,
-                post.getLikeCount(), likedByMe, commentCount, post.getStatus(), post.getCreatedAt()
+                post.getLikeCount(),
+                likedByMe,
+                commentCount,
+                post.getStatus(),
+                post.getCreatedAt()
         );
     }
 
-    private CommentResponse toCommentResponse(Comment comment) {
+    private CommentResponse toCommentResponse(Comment comment, Long currentUserId) {
+        boolean mine = currentUserId != null && comment.getUser().getId().equals(currentUserId);
         return new CommentResponse(
-                comment.getId(), comment.getUser().getId(), comment.getUser().getEmail(),
-                comment.getUser().getProfile() != null ? comment.getUser().getProfile().getFullName() : null,
+                comment.getId(),
+                comment.getUser().getId(),
+                DisplayNames.of(comment.getUser()),
+                mine,
                 comment.getContent(),
                 comment.getParentComment() != null ? comment.getParentComment().getId() : null,
                 comment.getCreatedAt()

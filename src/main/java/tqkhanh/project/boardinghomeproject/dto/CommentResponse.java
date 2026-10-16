@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 public record CommentResponse(
         Long id,
         Long userId,
-        String userEmail,
-        String userFullName,
+        String authorName,
+        boolean mine,
         String content,
         Long parentCommentId,
         LocalDateTime createdAt

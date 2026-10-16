@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tqkhanh.project.boardinghomeproject.util.DisplayNames;
 
 import java.util.List;
 
@@ -121,8 +122,7 @@ public class ChatService {
                 chatRoom.getId(), currentUserId);
 
         return new ChatRoomResponse(
-                chatRoom.getId(), other.getId(), other.getEmail(),
-                other.getProfile() != null ? other.getProfile().getFullName() : null,
+                chatRoom.getId(), other.getId(), DisplayNames.of(other),
                 chatRoom.getRelatedRoom() != null ? chatRoom.getRelatedRoom().getId() : null,
                 chatRoom.getRelatedRoom() != null ? chatRoom.getRelatedRoom().getTitle() : null,
                 last != null ? last.getContent() : null,

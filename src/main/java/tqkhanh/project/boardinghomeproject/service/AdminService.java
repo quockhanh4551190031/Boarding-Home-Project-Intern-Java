@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tqkhanh.project.boardinghomeproject.util.DisplayNames;
 
 import java.util.List;
 
@@ -115,8 +116,7 @@ public class AdminService {
 
     private PostResponse toPostResponse(ForumPost post) {
         return new PostResponse(
-                post.getId(), post.getUser().getId(), post.getUser().getEmail(),
-                post.getUser().getProfile() != null ? post.getUser().getProfile().getFullName() : null,
+                post.getId(), post.getUser().getId(), DisplayNames.of(post.getUser()), false,
                 post.getTitle(), post.getContent(),
                 post.getSharedRoom() != null ? post.getSharedRoom().getId() : null,
                 post.getSharedRoom() != null ? post.getSharedRoom().getTitle() : null,

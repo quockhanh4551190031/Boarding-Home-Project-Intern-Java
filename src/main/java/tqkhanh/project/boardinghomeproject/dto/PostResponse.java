@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
 public record PostResponse(
         Long id,
         Long userId,
-        String userEmail,
-        String userFullName,
+        String authorName,
+        boolean mine,
         String title,
         String content,
         Long sharedRoomId,
         String sharedRoomTitle,
         int likeCount,
-        boolean likeByMe,
+        boolean likedByMe,
         int commentCount,
         PostStatus status,
         LocalDateTime createdAt
