@@ -75,7 +75,7 @@ public class PublicProfileService {
         );
     }
 
-    private PublicHouseItem toHouseItem(BoardingHouse house) {
+    public PublicHouseItem toHouseItem(BoardingHouse house) {
         List<Room> visible = house.getRooms().stream()
                 .filter(r -> r.getStatus() != RoomStatus.HIDDEN)
                 .toList();
