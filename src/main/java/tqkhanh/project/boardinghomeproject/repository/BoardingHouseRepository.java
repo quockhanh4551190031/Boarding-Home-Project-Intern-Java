@@ -21,14 +21,5 @@ public interface BoardingHouseRepository extends JpaRepository<BoardingHouse, Lo
 
     @Query("SELECT DISTINCT h.city FROM BoardingHouse h WHERE h.city IS NOT NULL")
     List<String> findDistinctCities();
-
-    @Query("""
-            SELECT h FROM BoardingHouse h
-            WHERE h.status = :status AND LOWER(h.name) LIKE :pattern ESCAPE '!'
-            ORDER BY CASE WHEN LOWER(h.name) LIKE :prefix ESCAPE '!' THEN 0 ELSE 1 END, h.name
-            """)
-    List<BoardingHouse> searchByName(@Param("status") HouseStatus status,
-                                     @Param("pattern") String pattern,
-                                     @Param("prefix") String prefix,
-                                     Pageable pageable);
+    
 }

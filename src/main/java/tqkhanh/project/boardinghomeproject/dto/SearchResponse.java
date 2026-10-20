@@ -2,5 +2,5 @@ package tqkhanh.project.boardinghomeproject.dto;
 
 import java.util.List;
 
-public record SearchResponse(List<PublicHouseItem> houses, List<UserSearchItem> users) {
+public record SearchResponse(List<PostSearchItem> posts, List<UserSearchItem> users) {
 }
