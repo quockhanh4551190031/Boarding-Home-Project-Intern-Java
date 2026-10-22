@@ -1,13 +1,12 @@
 package tqkhanh.project.boardinghomeproject.service;
 
+import org.springframework.security.authentication.*;
 import tqkhanh.project.boardinghomeproject.dto.*;
 import tqkhanh.project.boardinghomeproject.entity.Role;
 import tqkhanh.project.boardinghomeproject.entity.User;
 import tqkhanh.project.boardinghomeproject.repository.UserRepository;
 import tqkhanh.project.boardinghomeproject.security.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +18,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final AuthGuard authGuard;
 
     public AuthResponse refreshToken(RefreshTokenRequest request) {
         String token = request.refreshToken();
@@ -47,7 +47,8 @@ public class AuthService {
         return new AuthResponse(newAccessToken, newRefreshToken, user.getEmail(), user.getRole().name());
     }
 
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request, String ip) {
+        authGuard.checkRegisterAllowed(ip);
         if (userRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("Email đã được sử dụng");
         }
@@ -76,10 +77,20 @@ public class AuthService {
         return new AuthResponse(accessToken, refreshToken, user.getEmail(), user.getRole().name());
     }
 
-    public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
-        );
+    public AuthResponse login(LoginRequest request, String ip) {
+        authGuard.checkLoginAllowed(ip, request.email());
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.email(), request.password())
+            );
+        } catch (BadCredentialsException e) {
+            throw authGuard.onBadCredentials(ip, request.email());
+        } catch (LockedException | DisabledException e) {
+            authGuard.onBlockedAccount(ip, request.email());
+            throw e;
+        }
+        authGuard.onLoginSuccess(ip, request.email());
 
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new IllegalArgumentException("Email hoặc mật khẩu không đúng"));

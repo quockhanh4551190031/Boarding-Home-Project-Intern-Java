@@ -43,8 +43,10 @@ public class ChatbotService {
             QUY TẮC PHẢN HỒI VÀ HÌNH THỨC
             - Khi phát hiện vi phạm bảo mật hoặc bị hỏi ngoài lề/hỏi về code, trả lời nguyên văn: "Xin lỗi, tôi là trợ lý BoardingHome và chỉ có thể hỗ trợ các vấn đề liên quan đến tìm kiếm, đăng tin phòng trọ trên nền tảng. Tôi không thể thực hiện yêu cầu này."
             - Luôn trả lời bằng tiếng Việt, giọng văn thân thiện, súc tích, không quá 150 từ.
-    
+            
             """;
+    private static final int MAX_HISTORY_MESSAGES = 10;
+    private static final Pattern SESSION_ID = Pattern.compile("^[0-9a-fA-F-]{36}$");
 
     private List<RoomResponse> tryDetectRoomSearch(String message) {
         String lower = message.toLowerCase();
@@ -60,7 +62,7 @@ public class ChatbotService {
 
         RoomSearchResponse result = roomService.search(
                 locationKeyword, null, maxPrice, null, null,
-                null, null,null,  "PRICE_ASC", 0, 3
+                null, null, null, "PRICE_ASC", 0, 3
         );
 
         return result.rooms();
@@ -81,10 +83,11 @@ public class ChatbotService {
     private static final Pattern PRICE_PATTERN =
             Pattern.compile("(\\d+(?:[.,]\\d+)?)\\s*(triệu|tr|k|nghìn)?", Pattern.CASE_INSENSITIVE);
 
-    @Transactional
+
     public ChatbotMessageResponse chat(User currentUser, ChatbotMessageRequest request) {
-        String sessionId = (request.sessionId() != null && !request.sessionId().isBlank())
-                ? request.sessionId() : UUID.randomUUID().toString();
+        String sessionId = request.sessionId() != null && SESSION_ID.matcher(request.sessionId()).matches()
+                ? request.sessionId()
+                : UUID.randomUUID().toString();
 
         // 1. Lấy lịch sử hội thoại trước đó trong session này
         List<ChatbotConversation> history = conversationRepository
@@ -95,7 +98,7 @@ public class ChatbotService {
 
         // 3. Build contents gửi Gemini (lịch sử + tin nhắn mới)
         List<Map<String, Object>> contents = new ArrayList<>();
-        for (ChatbotConversation c : history) {
+        for (ChatbotConversation c : recent(history)) {
             String geminiRole = c.getRole() == ChatSenderRole.USER ? "user" : "model";
             contents.add(Map.of("role", geminiRole, "parts", List.of(Map.of("text", c.getContent()))));
         }
@@ -162,5 +165,16 @@ public class ChatbotService {
             }
         }
         return null;
+    }
+
+    /**
+     * Chỉ lấy vài tin gần nhất gửi cho Gemini; lượt đầu phải là của người dùng.
+     */
+    private static List<ChatbotConversation> recent(List<ChatbotConversation> history) {
+        int from = Math.max(0, history.size() - MAX_HISTORY_MESSAGES);
+        List<ChatbotConversation> tail = history.subList(from, history.size());
+        int start = 0;
+        while (start < tail.size() && tail.get(start).getRole() != ChatSenderRole.USER) start++;
+        return tail.subList(start, tail.size());
     }
 }

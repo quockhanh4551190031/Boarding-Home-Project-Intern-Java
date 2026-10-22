@@ -47,6 +47,11 @@ public class GeminiClient {
                 return extractText(response);
 
             } catch (RestClientResponseException e) {
+                if (e.getStatusCode().value() == 429) {
+                    // Hết hạn mức Gemini: thử lại ngay vài giây sau cũng vô ích nên không retry
+                    throw new GeminiOverloadedException(
+                            "Trợ lý AI đang nhận quá nhiều yêu cầu hoặc đã hết hạn mức. Vui lòng thử lại sau ít phút");
+                }
                 String rawBody = e.getResponseBodyAsString().toLowerCase();
                 boolean isOverloaded = e.getStatusCode().value() == 503
                         || rawBody.contains("overloaded")
