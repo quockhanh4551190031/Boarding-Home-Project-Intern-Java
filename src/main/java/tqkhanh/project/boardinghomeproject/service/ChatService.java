@@ -13,6 +13,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tqkhanh.project.boardinghomeproject.util.DisplayNames;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -24,6 +27,34 @@ public class ChatService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+
+    /**
+     * Tin nhắn tự động (ví dụ lịch xem phòng): lưu vào cuộc trò chuyện giữa hai người, phát realtime sau khi commit.
+     */
+    @Transactional
+    public void postSystemMessage(User sender, User receiver, Room relatedRoom, String content) {
+        ChatRoom chatRoom = chatRoomRepository.findBetweenUsers(sender.getId(), receiver.getId())
+                .orElseGet(() -> chatRoomRepository.save(ChatRoom.builder()
+                        .user1(sender).user2(receiver).relatedRoom(relatedRoom).build()));
+
+        Message message = messageRepository.save(Message.builder()
+                .chatRoom(chatRoom).sender(sender).content(content).messageType(MessageType.TEXT).build());
+
+        MessageResponse response = toMessageResponse(message);
+        String destination = "/topic/chat/" + chatRoom.getId();
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    messagingTemplate.convertAndSend(destination, response);
+                }
+            });
+        } else {
+            messagingTemplate.convertAndSend(destination, response);
+        }
+    }
 
     @Transactional(readOnly = true)
     public long countUnread(User user) {

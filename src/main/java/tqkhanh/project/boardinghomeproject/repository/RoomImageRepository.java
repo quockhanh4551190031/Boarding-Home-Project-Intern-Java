@@ -19,4 +19,8 @@ public interface RoomImageRepository extends JpaRepository<RoomImage, Long> {
             "ORDER BY ri.thumbnail DESC, ri.id ASC")
     List<Object[]> findCoverImages(@Param("houseIds") Collection<Long> houseIds,
                                    @Param("hidden") RoomStatus hidden);
+
+    @Query("SELECT ri.room.id, ri.imageUrl FROM RoomImage ri WHERE ri.room.id IN :roomIds " +
+            "ORDER BY ri.thumbnail DESC, ri.id ASC")
+    List<Object[]> findCoverImagesByRoom(@Param("roomIds") Collection<Long> roomIds);
 }
