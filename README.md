@@ -24,7 +24,7 @@ spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.open-in-view=false
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MariaDBDialect
 # ===== JWT =====
-jwt.secret=fJeL20N7lcLV/2c4rM9hZddqWalxCFDOCnDNroui+ZuR1tyYEkRrpmV5emH46sekKCi+o7V1VRq2KVrbLkgnLA==
+jwt.secret=<Your JWT Secret Key 256-bit/32 byte HS256>
 jwt.access-token-expiration=900000
 jwt.refresh-token-expiration=604800000
 # ==== GEMINI API ====
